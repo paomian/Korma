@@ -198,6 +198,13 @@
 ;; Query parts
 ;;*****************************************************
 
+(defn- update-fields [query fs]
+  (let [[first-cur] (:fields query)]
+    (if (= first-cur ::*)
+      (assoc query :fields fs)
+      (update-in query [:fields] utils/vconcat fs))))
+
+
 (defn fields
   "Set the fields to be selected in a query. Fields can either be a keyword
   or a vector of two keywords [field alias]:
@@ -207,7 +214,7 @@
   (let [aliases (set (map second (filter vector? vs)))]
     (-> query
         (update-in [:aliases] set/union aliases)
-        (assoc :fields (vec vs)))))
+        (update-fields (vec vs)))))
 
 (defn set-fields
   "Set the fields and values for an update query."
